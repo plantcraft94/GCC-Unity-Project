@@ -3,16 +3,19 @@ using UnityEngine.InputSystem;
 
 public class GizmoDrawer : MonoBehaviour
 {
+	[Header("Grid")]
 	[SerializeField] Vector2Int GridSize;
 	[SerializeField] Vector2 CellSize;
-	Camera cam;
-	Transform currentPickable;
-	Vector3 mousepos;
+	Vector2Int OldCellPos;
+	int[,] CellState;
+	[Header("PickableObject")]
 	Vector3 CurrObjectPos;
 	bool hold = false;
-	Vector2Int OldCellPos;
-
-	int[,] CellState;
+	Transform currentPickable;
+	bool PickFromInside = false;
+	[Header("Mouse Stuff")]
+	Camera cam;
+	Vector3 mousepos;
 	private void Start()
 	{
 		cam = Camera.main;
@@ -26,64 +29,79 @@ public class GizmoDrawer : MonoBehaviour
 		}
 	}
 	private void Update()
-	{
-		int gridx, gridy;
-		MousePosWorldToGrid(out gridx, out gridy);
+    {
+        int gridx, gridy;
+        MousePosWorldToGrid(out gridx, out gridy);
 
-		RaycastHit2D hit = Physics2D.Raycast(mousepos, Vector2.zero);
-		Debug.Log(hit.collider);
-		if(hold == true)
+        CheckForPickableObject(gridx, gridy);
+    }
+
+    private void CheckForPickableObject(int gridx, int gridy)
+    {
+        RaycastHit2D hit = Physics2D.Raycast(mousepos, Vector2.zero);
+        if (hold == true)
+        {
+            currentPickable.position = mousepos;
+        }
+        if (Input.GetMouseButtonDown(0) && hit.collider != null && hit.collider.CompareTag("Pickable"))
+        {
+            PickUpObject(gridx, gridy, hit);
+        }
+        if (Input.GetMouseButtonUp(0) && hold == true)
+        {
+            hold = false;
+            CheckAndPutInGrid(gridx, gridy);
+        }
+    }
+
+    private void PickUpObject(int gridx, int gridy, RaycastHit2D hit)
+	{
+		CurrObjectPos = hit.transform.position;
+		currentPickable = hit.transform;
+		hold = true;
+		if (gridx >= 0 && gridx < GridSize.x && gridy >= 0 && gridy < GridSize.y)
 		{
-			
-			currentPickable.position = mousepos ;
+			PickFromInside = true;
+			Debug.Log($"pi ({gridx}, {gridy}): {CellState[gridx, gridy]}");
+			OldCellPos = new Vector2Int(gridx, gridy);
 		}
-		if (Input.GetMouseButtonDown(0) && hit.collider != null)
+		else
 		{
-			Debug.Log("Clocked");
-			CurrObjectPos = hit.transform.position;
-			currentPickable = hit.transform;
-			hold = true;
-			Debug.Log($"{gridx},{gridy}");
-			if (gridx >= 0 && gridx < GridSize.x && gridy >= 0 && gridy < GridSize.y)
+			PickFromInside = false;
+		}
+	}
+
+	private void CheckAndPutInGrid(int gridx, int gridy)
+	{
+		if (gridx >= 0 && gridx < GridSize.x && gridy >= 0 && gridy < GridSize.y)
+		{
+			Debug.Log($"pp ({gridx}, {gridy}): {CellState[gridx, gridy]}");
+			if (CellState[gridx, gridy] == 0)
 			{
-				OldCellPos = new Vector2Int(gridx, gridy);
 				CellState[gridx, gridy] = 1;
-			}
-		}
-		if(Input.GetMouseButtonUp(0) && hold == true)
-		{
-			hold = false;
-			if (gridx >= 0 && gridx < GridSize.x && gridy >= 0 && gridy < GridSize.y)
-			{
-				Debug.Log(CellState[gridx, gridy]);
-				if(CellState[gridx,gridy] == 0)
+				if(PickFromInside)
 				{
-					CellState[gridx, gridy] = 1;
 					CellState[OldCellPos.x, OldCellPos.y] = 0;
-					currentPickable.position = transform.TransformPoint(new Vector2(gridx,gridy) + CellSize/2);
 				}
-				else
-				{
-					
-					currentPickable.position = CurrObjectPos;
-				}
+				currentPickable.position = transform.TransformPoint(new Vector2(gridx, gridy) + CellSize / 2);
 			}
 			else
 			{
-					
+
 				currentPickable.position = CurrObjectPos;
 			}
+			Debug.Log($"pp 2 ({gridx}, {gridy}): {CellState[gridx, gridy]}");
 		}
-		// if(Mouse.current.leftButton.wasPressedThisFrame)   // trong trường hợp Input mới
-		// {
-		// 	Debug.Log($"{gridx},{gridy}");
-		// }
+		else
+		{
+
+			currentPickable.position = CurrObjectPos;
+		}
 	}
 
 	private void MousePosWorldToGrid(out int gridx, out int gridy)
 	{
 		mousepos = Input.mousePosition;
-		//vector3 mousepos = Mouse.current.position.ReadValue(); // trong trường hợp Input mới
 		mousepos.z = 10f;
 		mousepos = cam.ScreenToWorldPoint(mousepos);
 		Vector3 pos = mousepos - transform.position;
