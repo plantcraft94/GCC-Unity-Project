@@ -290,7 +290,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   Speed: 8
-  JumpForce: 12
+  JumpForce: 15
   caiyoteTime: 0.1
   JumpBufferTime: 0.2
   GroundLayer:

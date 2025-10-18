@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -16,6 +17,7 @@ public class GizmoDrawer : MonoBehaviour
 	[Header("Mouse Stuff")]
 	Camera cam;
 	Vector3 mousepos;
+	[SerializeField] GameObject obj;
 	private void Start()
 	{
 		cam = Camera.main;
@@ -29,32 +31,40 @@ public class GizmoDrawer : MonoBehaviour
 		}
 	}
 	private void Update()
-    {
-        int gridx, gridy;
-        MousePosWorldToGrid(out gridx, out gridy);
+	{
+		int gridx, gridy;
+		MousePosWorldToGrid(out gridx, out gridy);
+		if(Input.GetMouseButtonDown(0) && gridx >= 0 && gridx < GridSize.x && gridy >= 0 && gridy < GridSize.y )
+		{
+			if(CellState[gridx,gridy] == 0)
+			{
+				Instantiate(obj, transform.TransformPoint(new Vector2(gridx, gridy) + CellSize / 2), Quaternion.identity);
+				CellState[gridx, gridy] = 1;
+			}
+		}
 
-        CheckForPickableObject(gridx, gridy);
-    }
+		CheckForPickableObject(gridx, gridy);
+	}
 
-    private void CheckForPickableObject(int gridx, int gridy)
-    {
-        RaycastHit2D hit = Physics2D.Raycast(mousepos, Vector2.zero);
-        if (hold == true)
-        {
-            currentPickable.position = mousepos;
-        }
-        if (Input.GetMouseButtonDown(0) && hit.collider != null && hit.collider.CompareTag("Pickable"))
-        {
-            PickUpObject(gridx, gridy, hit);
-        }
-        if (Input.GetMouseButtonUp(0) && hold == true)
-        {
-            hold = false;
-            CheckAndPutInGrid(gridx, gridy);
-        }
-    }
+	private void CheckForPickableObject(int gridx, int gridy)
+	{
+		RaycastHit2D hit = Physics2D.Raycast(mousepos, Vector2.zero);
+		if (hold == true)
+		{
+			currentPickable.position = mousepos;
+		}
+		if (Input.GetMouseButtonDown(0) && hit.collider != null && hit.collider.CompareTag("Pickable"))
+		{
+			PickUpObject(gridx, gridy, hit);
+		}
+		if (Input.GetMouseButtonUp(0) && hold == true)
+		{
+			hold = false;
+			CheckAndPutInGrid(gridx, gridy);
+		}
+	}
 
-    private void PickUpObject(int gridx, int gridy, RaycastHit2D hit)
+	private void PickUpObject(int gridx, int gridy, RaycastHit2D hit)
 	{
 		CurrObjectPos = hit.transform.position;
 		currentPickable = hit.transform;
