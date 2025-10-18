@@ -31,22 +31,26 @@ public class GizmoDrawer : MonoBehaviour
 		}
 	}
 	private void Update()
-	{
-		int gridx, gridy;
-		MousePosWorldToGrid(out gridx, out gridy);
-		if(Input.GetMouseButtonDown(0) && gridx >= 0 && gridx < GridSize.x && gridy >= 0 && gridy < GridSize.y )
-		{
-			if(CellState[gridx,gridy] == 0)
-			{
-				Instantiate(obj, transform.TransformPoint(new Vector2(gridx, gridy) + CellSize / 2), Quaternion.identity);
-				CellState[gridx, gridy] = 1;
-			}
-		}
+    {
+        int gridx, gridy;
+        MousePosWorldToGrid(out gridx, out gridy);
+        SpawnNewObjectInGridIfNotPickUpAnything(gridx, gridy);
+        CheckForPickableObject(gridx, gridy);
+    }
 
-		CheckForPickableObject(gridx, gridy);
-	}
+    private void SpawnNewObjectInGridIfNotPickUpAnything(int gridx, int gridy)
+    {
+        if (Input.GetMouseButtonDown(0) && gridx >= 0 && gridx < GridSize.x && gridy >= 0 && gridy < GridSize.y)
+        {
+            if (CellState[gridx, gridy] == 0)
+            {
+                Instantiate(obj, transform.TransformPoint(new Vector2(gridx, gridy) + CellSize / 2), Quaternion.identity);
+                CellState[gridx, gridy] = 1;
+            }
+        }
+    }
 
-	private void CheckForPickableObject(int gridx, int gridy)
+    private void CheckForPickableObject(int gridx, int gridy)
 	{
 		RaycastHit2D hit = Physics2D.Raycast(mousepos, Vector2.zero);
 		if (hold == true)
