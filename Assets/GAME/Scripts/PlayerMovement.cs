@@ -42,7 +42,7 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = Physics2D.OverlapCapsule(GroundCheckPos.position, new Vector2(0.9f, 0.15f), CapsuleDirection2D.Horizontal, 0, GroundLayer);
         Input();
         //move
-        rb.linearVelocityX = Movement * Speed;
+        rb.velocity = new Vector2 (Movement * Speed,rb.velocity.y);
         Assist();
         JumpCurve();
         Jump();
@@ -64,11 +64,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void JumpCurve()
 	{
-		if (rb.linearVelocityY >= 0.5f)
+		if (rb.velocity.y >= 0.5f)
 		{
 			caiyoteTime = 0f;
 		}
-		else if (rb.linearVelocityY <= 0.5f)
+		else if (rb.velocity.y <= 0.5f)
 		{
 			rb.gravityScale = gravityScale * FallMultiplyer;
 		}
@@ -82,9 +82,9 @@ public class PlayerMovement : MonoBehaviour
 	{
 		if (!JumpAction.IsPressed())
 		{
-			if (rb.linearVelocityY > 0)
+			if (rb.velocity.y > 0)
 			{
-				rb.linearVelocity = new Vector2(rb.linearVelocityX, rb.linearVelocityY * 0f);
+				rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0f);
 			}
 		}
 	}
@@ -98,7 +98,7 @@ public class PlayerMovement : MonoBehaviour
 			{
 				JumpBuffer = false;
 				rb.gravityScale = gravityScale;
-				rb.linearVelocity = new Vector2(rb.linearVelocityX, JumpForce);
+				rb.velocity = new Vector2(rb.velocity.x, JumpForce);
 
 
 			}
