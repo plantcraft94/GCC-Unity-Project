@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -23,6 +24,13 @@ public class PlayerMovement : MonoBehaviour
 	[Header("Input")]
 	InputAction MoveAction;
 	InputAction JumpAction;
+	InputAction AttackAction;
+	[Header("Attack")]
+	[SerializeField] GameObject Sword;
+	
+	[Header("Other")]
+	public bool IsFacingRight = true;
+	
 
 	// Start is called once before the first execution of Update after the MonoBehaviour is created
 	private void Awake()
@@ -30,39 +38,41 @@ public class PlayerMovement : MonoBehaviour
 		rb = GetComponent<Rigidbody2D>();
 		MoveAction = InputSystem.actions.FindAction("Move");
 		JumpAction = InputSystem.actions.FindAction("Jump");
+		AttackAction = InputSystem.actions.FindAction("Attack");
 	}
 	void Start()
 	{
-
+		Sword.SetActive(false);
 	}
 
 	// Update is called once per frame
 	void Update()
-    {
-        isGrounded = Physics2D.OverlapCapsule(GroundCheckPos.position, new Vector2(0.9f, 0.15f), CapsuleDirection2D.Horizontal, 0, GroundLayer);
-        Input();
-        //move
-        rb.velocity = new Vector2 (Movement * Speed,rb.velocity.y);
-        Assist();
-        JumpCurve();
-        Jump();
-        ReleaseJumpEarly();
+	{
+		isGrounded = Physics2D.OverlapCapsule(GroundCheckPos.position, new Vector2(0.9f, 0.15f), CapsuleDirection2D.Horizontal, 0, GroundLayer);
+		Input();
+		TurnCheck();
+		//move
+		rb.velocity = new Vector2 (Movement * Speed,rb.velocity.y);
+		Assist();
+		JumpCurve();
+		Jump();
+		ReleaseJumpEarly();
 
-    }
+	}
 
-    private void Assist()
-    {
-        if (isGrounded)
-        {
-            caiyoteTime = 0.1f;
-        }
-        else
-        {
-            caiyoteTime -= Time.deltaTime;
-        }
-    }
+	private void Assist()
+	{
+		if (isGrounded)
+		{
+			caiyoteTime = 0.1f;
+		}
+		else
+		{
+			caiyoteTime -= Time.deltaTime;
+		}
+	}
 
-    private void JumpCurve()
+	private void JumpCurve()
 	{
 		if (rb.velocity.y >= 0.5f)
 		{
@@ -113,11 +123,47 @@ public class PlayerMovement : MonoBehaviour
 	{
 		Movement = MoveAction.ReadValue<float>();
 		if (JumpAction.WasPressedThisFrame())
-        {
-            CurrJumpBufferTime = JumpBufferTime;
-            JumpBuffer = true;
+		{
+			CurrJumpBufferTime = JumpBufferTime;
+			JumpBuffer = true;
 
-        }
+		}
+		if(AttackAction.WasPressedThisFrame())
+		{
+			StartCoroutine(Attack());
+		}
 
+	}
+	IEnumerator Attack()
+	{
+		Sword.SetActive(true);
+		yield return new WaitForSeconds(0.25f);
+		Sword.SetActive(false);
+	}
+	void TurnCheck()
+	{
+		if (Movement > 0 && !IsFacingRight)
+		{
+			Flip();
+		}
+		else if (Movement < 0 && IsFacingRight)
+		{
+			Flip();
+		}
+	}
+	void Flip()
+	{
+		if (IsFacingRight)
+		{
+			Vector3 rotator = new Vector3(transform.rotation.x, 180f, transform.rotation.z);
+			transform.rotation = Quaternion.Euler(rotator);
+			IsFacingRight = !IsFacingRight;
+		}
+		else
+		{
+			Vector3 rotator = new Vector3(transform.rotation.x, 0f, transform.rotation.z);
+			transform.rotation = Quaternion.Euler(rotator);
+			IsFacingRight = !IsFacingRight;
+		}
 	}
 }
