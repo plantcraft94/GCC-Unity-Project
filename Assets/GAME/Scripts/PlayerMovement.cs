@@ -1,19 +1,20 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
 	[Header("Movement")]
 	[SerializeField] float Speed;
-	float Movement;
+	[HideInInspector] public float Movement { get; private set; }
 	Rigidbody2D rb;
 	[Header("Jump")]
 	[SerializeField] float JumpForce;
 	[SerializeField] float caiyoteTime;
 	[SerializeField] float JumpBufferTime;
 	float CurrJumpBufferTime;
-	bool isGrounded;
+	public bool isGrounded{ get; private set; }
 	[SerializeField] LayerMask GroundLayer;
 	[SerializeField] Transform GroundCheckPos;
 	[SerializeField] bool JumpBuffer;
@@ -30,6 +31,7 @@ public class PlayerMovement : MonoBehaviour
 	
 	[Header("Other")]
 	public bool IsFacingRight = true;
+	[SerializeField] UnityEvent OnAttack;
 	
 
 	// Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -130,12 +132,14 @@ public class PlayerMovement : MonoBehaviour
 		}
 		if(AttackAction.WasPressedThisFrame())
 		{
+			OnAttack.Invoke();
 			StartCoroutine(Attack());
 		}
 
 	}
 	IEnumerator Attack()
 	{
+		yield return new WaitForSeconds(0.4f);
 		Sword.SetActive(true);
 		yield return new WaitForSeconds(0.25f);
 		Sword.SetActive(false);
