@@ -32,6 +32,7 @@ public class PlayerMovement : MonoBehaviour
 	[Header("Other")]
 	public bool IsFacingRight = true;
 	[SerializeField] UnityEvent OnAttack;
+	bool IsAttacking = false;
 	
 
 	// Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -130,7 +131,7 @@ public class PlayerMovement : MonoBehaviour
 			JumpBuffer = true;
 
 		}
-		if(AttackAction.WasPressedThisFrame())
+		if(AttackAction.WasPressedThisFrame() && !IsAttacking && isGrounded)
 		{
 			OnAttack.Invoke();
 			StartCoroutine(Attack());
@@ -139,10 +140,12 @@ public class PlayerMovement : MonoBehaviour
 	}
 	IEnumerator Attack()
 	{
-		yield return new WaitForSeconds(0.4f);
+		IsAttacking = true;
+		yield return new WaitForSeconds(0.33f);
 		Sword.SetActive(true);
 		yield return new WaitForSeconds(0.25f);
 		Sword.SetActive(false);
+		IsAttacking = false;
 	}
 	void TurnCheck()
 	{
