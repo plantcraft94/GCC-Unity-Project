@@ -4,14 +4,16 @@ using UnityEngine;
 
 public class NPC : MonoBehaviour
 {
-	GameObject prompt;
+	[SerializeField] GameObject prompt;
 	bool showedPrompt = false;
-	// Start is called before the first frame update
-	private void Awake()
-	{
-		prompt = transform.GetChild(1).gameObject;
-	}
-	void Start()
+
+    private void Awake()
+    {
+        
+    }
+
+    // Start is called before the first frame update
+    void Start()
 	{
 		prompt.SetActive(false);
 	}
