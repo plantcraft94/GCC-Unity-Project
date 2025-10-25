@@ -15,12 +15,12 @@ public class BTVN5 : MonoBehaviour
 	[SerializeField] float Bounceduration = 2f;
 	Vector2 startPos;
 	Rigidbody2D rb;
-    private void Awake()
-    {
+	private void Awake()
+	{
 		rb = GetComponent<Rigidbody2D>();
-    }
-    // Start is called before the first frame update
-    void Start()
+	}
+	// Start is called before the first frame update
+	void Start()
 	{
 		startPos = transform.position;
 	}
@@ -61,7 +61,7 @@ public class BTVN5 : MonoBehaviour
 		{
 			currentBounceTime += Time.deltaTime;
 			float currentbounce = Mathf.Lerp(0, MaxHeight, animCurve.Evaluate(currentBounceTime / Bounceduration));
-			rb.MovePosition(startPos + new Vector2(-currentbounce, 0));
+			rb.MovePosition(startPos + new Vector2(0, currentbounce));
 			yield return null;
 		}
 		Bounce = null;
