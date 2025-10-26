@@ -20,11 +20,11 @@ public class Player : MonoBehaviour
 	}
 
 	// Update is called once per frame
-	void Update()
-	{
-		Animation();
-	}
-	void Animation()
+    private void LateUpdate()
+    {
+        Animation();
+    }
+    void Animation()
 	{
 		anim.SetBool("IsMoving", PM.Movement != 0);
 		anim.SetBool("IsJumping", !PM.isGrounded);

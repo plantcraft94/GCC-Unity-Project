@@ -26,6 +26,7 @@ public class BTVN5 : MonoBehaviour
 	}
 	private void OnDisable()
 	{
+		StopAllCoroutines();
 		Shrink = null;
 		Bounce = null;
 	}
