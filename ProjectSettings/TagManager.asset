@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Pickable
   - NPC
+  - Shape
   layers:
   - Default
   - TransparentFX
