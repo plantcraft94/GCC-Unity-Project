@@ -52,7 +52,10 @@ public class PlayerMovement : MonoBehaviour
 	void Update()
 	{
 		isGrounded = Physics2D.OverlapCapsule(GroundCheckPos.position, new Vector2(0.9f, 0.15f), CapsuleDirection2D.Horizontal, 0, GroundLayer);
-		Input();
+		if(!PauseManager.Instance.GetPauseState())
+        {
+			Input();
+        }
 		TurnCheck();
 		//move
 		rb.velocity = new Vector2 (Movement * Speed,rb.velocity.y);
